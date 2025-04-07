@@ -17,24 +17,30 @@ export const AppProvider = ({ children }) => {
 
     const login = async ({ email, password }) => {
         if (email === 'richard7santos@hotmail.com' && password === '123456') {
-            setUser(defaultUser);
-            alert("Logado")
-            await AsyncStorage.setItem('user', JSON.stringify(user));
+            const loggedUser = defaultUser;
+            setUser(loggedUser);
+            await AsyncStorage.setItem('user', JSON.stringify(loggedUser));
+            alert("Logado");
+        } else {
+            alert('Email ou senha inválidos!');
         }
-        else {
-            alert('Email ou senha inválidos!')
-        }
-    }
+    };
 
     const logout = async () => {
         setUser(null);
         await AsyncStorage.removeItem('user');
     }
 
-    const addParticipante = async (nome, email,) => {
-        const newParticipante = { id: Date.now(), nome, email };
+    const addParticipante = async ({ nome, email, telefone, idade }) => {
+        const newParticipante = {
+            id: Date.now(),
+            nome,
+            email,
+            telefone,
+            idade
+        };
         setParticipantes((prev) => [...prev, newParticipante]);
-    }
+    };
 
     const removeParticipante = async (id) => {
         setParticipantes((prev) => prev.filter((p) => p.id !== id));
