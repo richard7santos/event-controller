@@ -7,9 +7,12 @@ export const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     title: {
-        fontSize: 24,
+        fontSize: 40,
         fontWeight: 'bold',
         marginBottom: 16,
+        color: 'red',
+        justifyContent: 'center',
+        textAlign: 'center',
     },
     empty: {
         fontSize: 16,

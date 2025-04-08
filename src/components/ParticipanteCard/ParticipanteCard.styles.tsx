@@ -6,6 +6,9 @@ export const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 12,
         borderRadius: 8,
+        display: 'flex',
+        flexDirection: 'row',   
+        justifyContent: 'space-between',
     },
     nome: {
         fontSize: 18,

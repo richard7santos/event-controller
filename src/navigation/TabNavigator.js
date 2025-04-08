@@ -19,6 +19,7 @@ const TabNavigator = () => {
             <Tab.Screen
                 name="Participantes"
                 component={ParticipantesList}
+                options={{ headerShown: false }}
             />
             <Tab.Screen
                 name="Perfil"
