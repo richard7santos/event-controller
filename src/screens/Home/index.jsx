@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,10 @@ import { styles } from './Home.styles';
 const Home = () => {
     const navigation = useNavigation();
     const { participantes } = useContext(AppContext);
+    const [lotacao, setLotacao] = useState(2);
+    const vagas = lotacao - participantes.length;
+    const isLotado = participantes.length >= lotacao;
+
 
     const goToAddParticipante = () => {
         navigation.navigate('AddParticipante');
@@ -19,10 +23,16 @@ const Home = () => {
             <Text style={styles.count}>
                 Participantes cadastrados: {participantes.length}
             </Text>
+            <Text style={styles.count}>
+                Vagas disponíveis: {vagas}
+            </Text>
 
-            <TouchableOpacity style={styles.btn} onPress={goToAddParticipante}>
-                <Ionicons name="add" size={32} color="#fff" />
-            </TouchableOpacity>
+            {!isLotado && (
+                <TouchableOpacity disabled={isLotado} style={styles.btn} onPress={goToAddParticipante}>
+                    <Ionicons name="add" size={32} color="#fff" />
+                </TouchableOpacity>
+            )}
+
         </View>
     );
 };

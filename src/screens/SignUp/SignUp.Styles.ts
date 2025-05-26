@@ -9,17 +9,14 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 16,
-    },
-    empty: {
-        fontSize: 16,
-        color: '#777',
-        marginTop: 20,
+        marginBottom: 20,
         textAlign: 'center',
     },
-    loadingText: {
-        marginTop: 10,
-        fontSize: 16,
-        color: '#333',
-    }
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 15,
+    },
 });

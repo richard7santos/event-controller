@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
     fullWidthButton: {
         width: '100%',
         height: 50,
+        marginBottom: 10,
         backgroundColor: 'blue',
         justifyContent: 'center',
         alignItems: 'center',

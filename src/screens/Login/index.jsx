@@ -25,6 +25,7 @@ const Login = () => {
                 <CustomInput placeholder="Email" label={'Email'} value={email} onChangeText={(e) => setEmail(e)} />
                 <CustomInput placeholder="Senha" label={'Senha'} value={password} onChangeText={(e) => setPassword(e)} secureTextEntry />
                 <FullWidthButton text="Entrar" title="Entrar" onPress={handleLogin} />
+                <FullWidthButton text="Cadastrar" title="Cadastrar" onPress={() => navigation.navigate('SignUp')} />
             </View>
         </View>
     );

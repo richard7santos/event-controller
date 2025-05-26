@@ -7,6 +7,7 @@ import { AppContext } from '../context/AppContext';
 import Login from '../screens/Login';
 import TabNavigator from './TabNavigator';
 import ParticipanteForm from '../screens/ParticipanteForm';
+import SignUpScreen from '../screens/SignUp/SignUpScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,7 +31,11 @@ const Routes = () => {
                         <Stack.Screen name="AddParticipante" component={ParticipanteForm} />
                     </>
                 ) : (
-                    <Stack.Screen name="Login" component={Login} />
+                    <>
+                        <Stack.Screen name="Login" component={Login} />
+                        <Stack.Screen name="SignUp" component={SignUpScreen} />
+                    </>
+
                 )}
             </Stack.Navigator>
         </NavigationContainer>
