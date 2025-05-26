@@ -1,11 +1,20 @@
 import React, { useContext } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { AppContext } from '../../context/AppContext';
 import ParticipanteCard from '../../components/ParticipanteCard';
 import { styles } from './ParticipantesList.styles';
 
 const ParticipantesList = () => {
-    const { participantes, removeParticipante } = useContext(AppContext);
+    const { participantes, removeParticipante, loading } = useContext(AppContext);
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#0000ff" />
+                <Text style={styles.loadingText}>Carregando participantes...</Text>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -29,7 +38,5 @@ const ParticipantesList = () => {
         </View>
     );
 };
-
-
 
 export default ParticipantesList;

@@ -17,4 +17,9 @@ export const styles = StyleSheet.create({
         marginTop: 20,
         textAlign: 'center',
     },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#333',
+    }
 });
