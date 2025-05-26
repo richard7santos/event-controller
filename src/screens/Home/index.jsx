@@ -11,8 +11,6 @@ const Home = () => {
     const [lotacao, setLotacao] = useState(2);
     const vagas = lotacao - participantes.length;
     const isLotado = participantes.length >= lotacao;
-   
-
 
     const goToAddParticipante = () => {
         navigation.navigate('AddParticipante');

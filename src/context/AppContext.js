@@ -1,5 +1,7 @@
 import React, { useState, useEffect, createContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import {auth} from "../services/firebaseConfig";
 
 export const AppContext = createContext();
 
@@ -8,21 +10,22 @@ export const AppProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [participantes, setParticipantes] = useState([]);
 
-    const defaultUser = {
-        id: 1,
-        name: "Ricardo",
-        email: 'richard7santos@hotmail.com',
-        password: '123456'
-    }
-
     const login = async ({ email, password }) => {
-        if (email === 'richard7santos@hotmail.com' && password === '123456') {
-            const loggedUser = defaultUser;
+        try {
+            setLoading(true);
+            const user = await signInWithEmailAndPassword(auth,email, password);
+            const loggedUser = {
+                id: user.uid,
+                name: user.displayName || "Usuário",
+                email: user.email,
+            };
             setUser(loggedUser);
             await AsyncStorage.setItem('user', JSON.stringify(loggedUser));
             alert("Logado");
-        } else {
-            alert('Email ou senha inválidos!');
+        } catch (error) {
+            alert('Erro ao fazer login: ' + error.message);
+        } finally {
+            setLoading(false);
         }
     };
 

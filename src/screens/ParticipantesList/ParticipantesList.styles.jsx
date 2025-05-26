@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
         fontSize: 40,
         fontWeight: 'bold',
         marginBottom: 16,
-        color: 'red',
+        color: '#f75ed8',
         justifyContent: 'center',
         textAlign: 'center',
     },

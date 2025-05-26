@@ -2,23 +2,22 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     container: {
-        marginVertical: 10,
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#fff',
     },
-    label: {
-        marginBottom: 5,
+    title: {
         fontSize: 24,
-        color: '#F5A9D0',
         fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+        color: 'pink'
     },
     input: {
-        backgroundColor: '#fff',
-        borderColor: '#F5A9D0',
         borderWidth: 1,
+        borderColor: '#ccc',
         borderRadius: 5,
         padding: 10,
-        fontSize: 16,
-    },
-    inputFocused: {
-        borderColor: '#1E90FF',
+        marginBottom: 15,
     },
 });

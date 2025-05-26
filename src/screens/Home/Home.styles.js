@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
     text: {
         fontSize: 40,
         fontWeight: 'bold',
-        color: '#FE2E2E',
+        color: '#f75ed8',
         marginBottom: 12,
     },
     demais:{
@@ -28,11 +28,11 @@ export const styles = StyleSheet.create({
     respostas:{
         fontSize: 25,
         fontWeight: 'bold',
-        color: 'red',
+        color: '#f75ed8',
     },
     count: {
         fontSize: 18,
-        color: '#333',
+        color: '#f75ed8',
     },
     btn: {
         position: 'absolute',

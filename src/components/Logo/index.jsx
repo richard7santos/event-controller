@@ -16,10 +16,10 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     logoText: {
-        color: 'white',
+        color: '#F5A9D0',
         fontSize: 24,
         fontWeight: 'bold',
-        borderColor: 'yellow',
+        borderColor: '#F5A9D0',
         borderWidth: 2,
         padding: 10,
     },

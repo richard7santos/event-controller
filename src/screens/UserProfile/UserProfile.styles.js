@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         marginBottom: 16,
+        color: '#f75ed8'
     },
     label: {
         fontSize: 18,
@@ -19,13 +20,13 @@ export const styles = StyleSheet.create({
     },
     message: {
         fontSize: 18,
-        color: "gray",
+        color: '#f75ed8',
     },
     button: {
         marginTop: 24,
         paddingHorizontal: 24,
         paddingVertical: 12,
-        backgroundColor: "#007AFF",
+        backgroundColor: '#f75ed8',
         borderRadius: 8,
     },
     buttonText: {
