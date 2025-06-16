@@ -12,33 +12,29 @@ const Home = () => {
     const vagas = lotacao - participantes.length;
     const isLotado = participantes.length >= lotacao;
 
+
     const goToAddParticipante = () => {
         navigation.navigate('AddParticipante');
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>AI TECHNOLOGY EVENT </Text>
-            
-            <View style={styles.container2}>
-            <Text style={styles.demais}>DATA:  <Text style={styles.respostas}>08/03/2026</Text></Text>
-            <Text style={styles.demais}>LOCAL: <Text style={styles.respostas}>CASTELLI HALL</Text></Text>
-            <Text style={styles.demais}>LOTAÇÃO: <Text style={styles.respostas}>{lotacao}</Text></Text>
-            <Text style={styles.demais}>VAGAS: <Text style={styles.respostas}>{vagas}</Text></Text>
-            <Text style={styles.demais}>PARTICIPANTES CADASTRADOS:  <Text style={styles.respostas}>{participantes.length}
-            </Text></Text>
-            <Text style={styles.demais}> VAGAS DISPONÍVEIS: <Text style={styles.respostas}>{vagas} 
-            </Text></Text>
-            
-            {isLotado && (
-                <Text style={styles.alert}> 🚫LIMITE DE PARTICIPANTES ATINGIDO🚫</Text>
+            <Text style={styles.text}>Home</Text>
+            <Text style={styles.count}>
+                Participantes cadastrados: {participantes.length}
+            </Text>
+            <Text style={styles.count}>
+                Vagas disponíveis: {vagas}
+            </Text>
+
+            {!isLotado && (
+                <TouchableOpacity disabled={isLotado} style={styles.btn} onPress={goToAddParticipante}>
+                    <Ionicons name="add" size={32} color="#fff" />
+                </TouchableOpacity>
             )}
-            </View>
-            <TouchableOpacity disabled={isLotado} style ={styles.btn} onPress={goToAddParticipante}>
-                <Ionicons name="add" size={32} color="#fff" />
-            </TouchableOpacity>
+
         </View>
     );
-}; 
+};
 
 export default Home;

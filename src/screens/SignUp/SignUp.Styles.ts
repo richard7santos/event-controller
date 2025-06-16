@@ -20,4 +20,10 @@ export const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 15,
     },
+    switchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+    },
 });
