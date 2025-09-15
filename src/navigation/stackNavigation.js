@@ -27,8 +27,19 @@ const Routes = () => {
             <Stack.Navigator>
                 {user ? (
                     <>
-                        <Stack.Screen name="Home" component={TabNavigator} options={{ title: 'Eventos' }} />
-                        <Stack.Screen name="EventDetail" component={EventDetail} options={{ title: 'Detalhes do Evento' }} />
+                        <Stack.Screen name="Home" component={TabNavigator}
+                            options={{
+                                headerShown: false,
+                            }} />
+                        <Stack.Screen name="EventDetail"
+                            component={EventDetail}
+                            options={{
+                                title: 'Detalhes do Evento',
+                                headerStyle: {
+                                    backgroundColor: '#0F62AC',
+                                },
+                                headerTintColor: '#fff',
+                            }} />
                     </>
                 ) : (
                     <>

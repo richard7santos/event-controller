@@ -13,16 +13,32 @@ const TabNavigator = () => {
             <Tab.Screen
                 name="Eventos"
                 component={EventList}
-                options={{ headerShown: false }}
+                options={{
+                    headerStyle: {
+                        backgroundColor: '#0F62AC',
+                    },
+                    headerTintColor: '#fff',
+                }}
             />
             <Tab.Screen
                 name="Meus Eventos"
                 component={UserEventsList}
-                options={{ headerShown: false }}
+                options={{
+                    headerStyle: {
+                        backgroundColor: '#0F62AC',
+                    },
+                    headerTintColor: '#fff',
+                }}
             />
             <Tab.Screen
                 name="Perfil"
                 component={UserProfile}
+                options={{
+                    headerStyle: {
+                        backgroundColor: '#0F62AC',
+                    },
+                    headerTintColor: '#fff',
+                }}
             />
 
         </Tab.Navigator>
