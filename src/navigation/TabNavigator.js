@@ -1,24 +1,24 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
-import Home from '../screens/Home';
-import ParticipantesList from '../screens/ParticipantesList';
 import UserProfile from '../screens/UserProfile';
+import { EventList } from '../screens/EventListScreen';
+import UserEventsList from '../screens/UserEventList';
 
 
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
     return (
-        <Tab.Navigator initialRouteName="Home">
+        <Tab.Navigator initialRouteName="Eventos">
             <Tab.Screen
-                name="Home"
-                component={Home}
+                name="Eventos"
+                component={EventList}
                 options={{ headerShown: false }}
             />
             <Tab.Screen
-                name="Participantes"
-                component={ParticipantesList}
+                name="Meus Eventos"
+                component={UserEventsList}
+                options={{ headerShown: false }}
             />
             <Tab.Screen
                 name="Perfil"
