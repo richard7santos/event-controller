@@ -9,39 +9,39 @@ import UserEventsList from '../screens/UserEventList';
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
-    return (
-        <Tab.Navigator
-            initialRouteName="Eventos"
-            screenOptions={({ route }) => ({
-                headerStyle: {
-                    backgroundColor: '#0F62AC',
-                },
-                headerTintColor: '#fff',
-                tabBarActiveTintColor: '#0F62AC',
-                tabBarInactiveTintColor: 'gray',
-                tabBarStyle: {
-                    backgroundColor: '#fff',
-                },
-                tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
+  const isAdmin = true; 
 
-                    if (route.name === 'Eventos') {
-                        iconName = focused ? 'calendar' : 'calendar-outline';
-                    } else if (route.name === 'Meus Eventos') {
-                        iconName = focused ? 'list' : 'list-outline';
-                    } else if (route.name === 'Perfil') {
-                        iconName = focused ? 'person' : 'person-outline';
-                    }
+  return (
+    <Tab.Navigator
+      initialRouteName="Eventos"
+      screenOptions={({ route }) => ({
+        headerStyle: {
+          backgroundColor: '#0F62AC',
+        },
+        headerTintColor: '#fff',
+        tabBarActiveTintColor: '#0F62AC',
+        tabBarInactiveTintColor: 'gray',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+        },
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
 
-                    return <Ionicons name={iconName} size={size} color={color} />;
-                },
-            })}
-        >
-            <Tab.Screen name="Eventos" component={EventList} />
-            <Tab.Screen name="Meus Eventos" component={UserEventsList} />
-            <Tab.Screen name="Perfil" component={UserProfile} />
-        </Tab.Navigator>
-    );
+          if (route.name === 'Eventos') {
+            iconName = focused ? 'calendar' : 'calendar-outline';
+          } else if (route.name === 'Perfil') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Eventos" component={EventList} />
+      {!isAdmin && <Tab.Screen name="Meus Eventos" component={UserEventsList} />}
+      <Tab.Screen name="Perfil" component={UserProfile} />
+    </Tab.Navigator>
+  );
 };
 
 export default TabNavigator;
