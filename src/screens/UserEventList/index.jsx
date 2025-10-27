@@ -1,36 +1,59 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../services/firebaseConfig';
-import { AppContext } from '../../context/AppContext';
-import { styles } from './UserEventList.styles';
-import EventItem from '../../components/EventItem';
+import React, { useState, useContext } from "react";
+import { View, Text, FlatList, ActivityIndicator, Alert, Button } from "react-native";
+import { databases } from "../../services/appWriteConfig";
+import { AppContext } from "../../context/AppContext";
+import { styles } from "./UserEventList.styles";
+import EventItem from "../../components/EventItem";
+import { useFocusEffect } from "@react-navigation/native";
+
+const DATABASE_ID = "68fe300d00286f2ad20a";
+const EVENTOS_COLLECTION_ID = "eventos";
 
 const UserEventsList = () => {
     const { user } = useContext(AppContext);
     const [userEvents, setUserEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchUserEvents();
-    }, []);
-
     const fetchUserEvents = async () => {
         try {
-            const eventosRef = collection(db, 'eventos');
-            const snapshot = await getDocs(eventosRef);
+            const { documents } = await databases.listDocuments(DATABASE_ID, EVENTOS_COLLECTION_ID);
 
-            const eventosInscrito = snapshot.docs
-                .map(doc => ({ id: doc.id, ...doc.data() }))
-                .filter(evento =>
-                    evento.participantes?.some(part => part.email === user.email)
-                );
+            const eventosInscrito = documents
+                .filter((evento) => evento.participantes?.includes(user.$id))
+                .map((evento) => ({
+                    id: evento.$id,
+                    ...evento,
+                }));
 
             setUserEvents(eventosInscrito);
         } catch (error) {
-            console.error('Erro ao buscar eventos do usuário:', error);
+            console.error("Erro ao buscar eventos do usuário:", error.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            setLoading(true);
+            fetchUserEvents();
+        }, [])
+    );
+
+    const handleCancelarInscricao = async (eventoId) => {
+        try {
+            const evento = userEvents.find((e) => e.id === eventoId);
+            const participantesAtualizados = evento.participantes.filter((id) => id !== user.$id);
+
+            await databases.updateDocument(DATABASE_ID, EVENTOS_COLLECTION_ID, eventoId, {
+                participantes: participantesAtualizados,
+            });
+
+            Alert.alert("Cancelado", "Inscrição cancelada.");
+            fetchUserEvents();
+        } catch (error) {
+            console.error("Erro ao cancelar inscrição:", error.message);
+            Alert.alert("Erro", "Não foi possível cancelar a inscrição.");
         }
     };
 
@@ -53,9 +76,16 @@ const UserEventsList = () => {
     return (
         <FlatList
             data={userEvents}
-            keyExtractor={item => item.id}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-                <EventItem evento={item} />
+                <View style={{ marginBottom: 20 }}>
+                    <EventItem evento={item} />
+                    <Button
+                        title="Cancelar Inscrição"
+                        color="#cc0000"
+                        onPress={() => handleCancelarInscricao(item.id)}
+                    />
+                </View>
             )}
             contentContainerStyle={styles.container}
         />

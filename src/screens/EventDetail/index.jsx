@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from "react";
 import {
     View,
     Text,
@@ -6,54 +6,39 @@ import {
     ActivityIndicator,
     Alert,
     Button,
-} from 'react-native';
-import {
-    doc,
-    getDoc,
-    updateDoc,
-    arrayUnion,
-    arrayRemove,
-} from 'firebase/firestore';
-import { db } from '../../services/firebaseConfig';
-import { styles } from './EventDetail.styles';
-import { AppContext } from '../../context/AppContext';
-import ModalConfirmation from '../../components/ModalConfirmation';
+    Image,
+} from "react-native";
+import { databases } from "../../services/appWriteConfig";
+import { styles } from "./EventDetail.styles";
+import { AppContext } from "../../context/AppContext";
+import ModalConfirmation from "../../components/ModalConfirmation";
+
+const DATABASE_ID = "68fe300d00286f2ad20a";
+const EVENTOS_COLLECTION_ID = "eventos";
 
 const EventDetail = ({ route }) => {
     const { user } = useContext(AppContext);
     const [event, setEvent] = useState(null);
-    const [eventId, setEventId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isParticipant, setIsParticipant] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [actionType, setActionType] = useState(null);
 
-    useEffect(() => {
-        setEventId(route.params.evento.id);
-    }, []);
+    const eventId = route.params.evento.id;
 
     useEffect(() => {
-        if (eventId) {
-            fetchEvent();
-        }
-    }, [eventId]);
+        fetchEvent();
+    }, []);
 
     const fetchEvent = async () => {
         try {
-            const docRef = doc(db, 'eventos', eventId);
-            const docSnap = await getDoc(docRef);
+            const response = await databases.getDocument(DATABASE_ID, EVENTOS_COLLECTION_ID, eventId);
+            setEvent(response);
 
-            if (docSnap.exists()) {
-                const eventoData = docSnap.data();
-                setEvent(eventoData);
-
-                const jaInscrito = eventoData.participantes?.some((p) => p.email === user.email);
-                setIsParticipant(jaInscrito);
-            } else {
-                console.log('Evento não encontrado');
-            }
+            const jaInscrito = response.participantes?.includes(user.$id);
+            setIsParticipant(jaInscrito);
         } catch (error) {
-            console.error('Erro ao buscar evento:', error);
+            console.error("Erro ao buscar evento:", error.message);
         } finally {
             setLoading(false);
         }
@@ -61,64 +46,35 @@ const EventDetail = ({ route }) => {
 
     const handleInscricao = async () => {
         try {
-            const userDocRef = doc(db, 'users', user.uid);
-            const userSnap = await getDoc(userDocRef);
+            const participantesAtualizados = [...(event.participantes || []), user.$id];
 
-            if (!userSnap.exists()) {
-                Alert.alert('Erro', 'Dados do usuário não encontrados.');
-                return;
-            }
-
-            const userData = userSnap.data();
-
-            const participante = {
-                name: userData.name,
-                email: userData.email,
-                phone: userData.phone,
-                address: userData.address,
-                number: userData.number,
-                cep: userData.cep,
-                complement: userData.complement,
-                isUnipacStudent: userData.isUnipacStudent,
-                registrationNumber: userData.registrationNumber || null,
-                uid: user.uid,
-            };
-
-            const eventoRef = doc(db, 'eventos', eventId);
-            await updateDoc(eventoRef, {
-                participantes: arrayUnion(participante),
+            await databases.updateDocument(DATABASE_ID, EVENTOS_COLLECTION_ID, eventId, {
+                participantes: participantesAtualizados,
             });
 
-            Alert.alert('Sucesso', 'Inscrição realizada com sucesso!');
+            Alert.alert("Sucesso", "Inscrição realizada com sucesso!");
             setIsParticipant(true);
             fetchEvent();
         } catch (error) {
-            console.error('Erro ao inscrever:', error);
-            Alert.alert('Erro', 'Não foi possível se inscrever.');
+            console.error("Erro ao inscrever:", error.message);
+            Alert.alert("Erro", "Não foi possível se inscrever.");
         }
     };
 
     const handleCancelarInscricao = async () => {
         try {
-            const eventoRef = doc(db, 'eventos', eventId);
+            const participantesAtualizados = event.participantes.filter((id) => id !== user.$id);
 
-            const participanteExistente = event.participantes.find(p => p.email === user.email);
-
-            if (!participanteExistente) {
-                Alert.alert('Erro', 'Participante não encontrado.');
-                return;
-            }
-
-            await updateDoc(eventoRef, {
-                participantes: arrayRemove(participanteExistente),
+            await databases.updateDocument(DATABASE_ID, EVENTOS_COLLECTION_ID, eventId, {
+                participantes: participantesAtualizados,
             });
 
-            Alert.alert('Cancelado', 'Inscrição cancelada.');
+            Alert.alert("Cancelado", "Inscrição cancelada.");
             setIsParticipant(false);
             fetchEvent();
         } catch (error) {
-            console.error('Erro ao cancelar inscrição:', error);
-            Alert.alert('Erro', 'Não foi possível cancelar a inscrição.');
+            console.error("Erro ao cancelar inscrição:", error.message);
+            Alert.alert("Erro", "Não foi possível cancelar a inscrição.");
         }
     };
 
@@ -128,9 +84,9 @@ const EventDetail = ({ route }) => {
     };
 
     const handleConfirmAction = () => {
-        if (actionType === 'inscrever') {
+        if (actionType === "inscrever") {
             handleInscricao();
-        } else if (actionType === 'cancelar') {
+        } else if (actionType === "cancelar") {
             handleCancelarInscricao();
         }
         setModalVisible(false);
@@ -159,7 +115,7 @@ const EventDetail = ({ route }) => {
             <Text style={styles.title}>{event.nome}</Text>
 
             <Text style={styles.label}>Data e Horário:</Text>
-            <Text style={styles.text}>{event.dataHora}</Text>
+            <Text style={styles.text}>{new Date(event.dataHora).toLocaleString("pt-BR")}</Text>
 
             <Text style={styles.label}>Local:</Text>
             <Text style={styles.text}>{event.local}</Text>
@@ -176,17 +132,25 @@ const EventDetail = ({ route }) => {
             <Text style={styles.label}>Informações Gerais:</Text>
             <Text style={styles.text}>{event.informacoesGerais}</Text>
 
+            {event.imagem && (
+                <Image
+                    source={{ uri: event.imagem }}
+                    style={{ width: "100%", height: 200, borderRadius: 8, marginTop: 16 }}
+                    resizeMode="cover"
+                />
+            )}
+
             <View style={{ marginTop: 20 }}>
                 {isParticipant ? (
                     <Button
                         title="Cancelar Inscrição"
                         color="#cc0000"
-                        onPress={() => handleOpenModal('cancelar')}
+                        onPress={() => handleOpenModal("cancelar")}
                     />
                 ) : (
                     <Button
                         title="Inscrever-se"
-                        onPress={() => handleOpenModal('inscrever')}
+                        onPress={() => handleOpenModal("inscrever")}
                         disabled={vagasDisponiveis <= 0}
                     />
                 )}
@@ -197,9 +161,9 @@ const EventDetail = ({ route }) => {
                 onClose={() => setModalVisible(false)}
                 onConfirm={handleConfirmAction}
                 message={
-                    actionType === 'inscrever'
-                        ? 'Deseja confirmar sua inscrição neste evento?'
-                        : 'Deseja cancelar sua inscrição neste evento?'
+                    actionType === "inscrever"
+                        ? "Deseja confirmar sua inscrição neste evento?"
+                        : "Deseja cancelar sua inscrição neste evento?"
                 }
             />
         </ScrollView>

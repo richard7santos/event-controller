@@ -1,106 +1,152 @@
 import React, { useState, useEffect, createContext } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { collection, addDoc, getDocs } from "firebase/firestore";
-import { auth, db } from "../services/firebaseConfig";
+import { ID, Permission, Query, Role } from "appwrite";
+import { account, databases } from "../services/appWriteConfig";
 
 export const AppContext = createContext();
 
+const DATABASE_ID = "68fe300d00286f2ad20a";
+const USERS_COLLECTION_ID = "68fe41620009211f1022";
+
 export const AppProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [participantes, setParticipantes] = useState([]);
 
     const login = async ({ email, password }) => {
         try {
             setLoading(true);
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const loggedUser = userCredential.user;
-            setUser(loggedUser);
-            await AsyncStorage.setItem('user', JSON.stringify(loggedUser));
+            await account.createEmailSession(email, password);
+            const userData = await account.get();
+            setUser(userData);
+            await AsyncStorage.setItem("user", JSON.stringify(userData));
+            await fetchUserProfile(userData.$id);
             alert("Logado com sucesso");
         } catch (error) {
-            alert('Erro ao fazer login: ' + error.message);
+            alert("Erro ao fazer login: " + error.message);
         } finally {
             setLoading(false);
         }
     };
 
     const logout = async () => {
+        try {
+            await account.deleteSession("current");
+        } catch (_) { }
         setUser(null);
-        await AsyncStorage.removeItem('user');
+        setUserProfile(null);
+        await AsyncStorage.removeItem("user");
     };
 
-    const addParticipante = async ({ nome, email, telefone, idade }) => {
+    const signUp = async ({
+        name,
+        email,
+        phone,
+        cep,
+        address,
+        number,
+        complement,
+        password,
+        isUnipacStudent,
+        registrationNumber,
+    }) => {
         try {
             setLoading(true);
 
-            // Adiciona no Firestore
-            await addDoc(collection(db, "participantes"), {
-                nome,
-                email,
-                telefone,
-                idade
-            });
+            // Cria conta no Appwrite
+            const newUser = await account.create(ID.unique(), email, password, name);
 
-            // Busca todos os participantes
-            const querySnapshot = await getDocs(collection(db, "participantes"));
-            const participantesList = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            // Cria sessão para autenticar o novo usuário
+            await account.createEmailSession(email, password);
 
-            // Atualiza estado e armazenamento local
-            setParticipantes(participantesList);
-            await AsyncStorage.setItem("participantes", JSON.stringify(participantesList));
+            // Cria documento de perfil com permissões privadas
+            const doc = await databases.createDocument(
+                DATABASE_ID,
+                USERS_COLLECTION_ID,
+                ID.unique(),
+                {
+                    name,
+                    email,
+                    phone,
+                    address,
+                    number,
+                    complement,
+                    cep,
+                    isUnipacStudent,
+                    registrationNumber: isUnipacStudent ? registrationNumber : null,
+                    userId: newUser.$id,
+                    role: "default",
+                },
+                [
+                    Permission.read(Role.user(newUser.$id)),
+                    Permission.update(Role.user(newUser.$id)),
+                    Permission.delete(Role.user(newUser.$id)),
+                ]
+            );
+
+            // Atualiza estado local
+            setUser(newUser);
+            setUserProfile(doc);
+            await AsyncStorage.setItem("user", JSON.stringify(newUser));
+
+            alert("Usuário cadastrado com sucesso!");
         } catch (error) {
-            alert("Erro ao adicionar participante: " + error.message);
+            console.log("Erro ao cadastrar:", error);
+            const msg =
+                error?.message?.includes("already exists")
+                    ? "Este e-mail já está em uso."
+                    : error?.message?.includes("password")
+                        ? "Senha fraca. Use ao menos 6 caracteres."
+                        : "Erro ao cadastrar. Tente novamente.";
+            alert("Erro: " + msg);
         } finally {
             setLoading(false);
         }
     };
 
-    const removeParticipante = async (id) => {
-        // Aqui você pode implementar a exclusão do Firestore também com deleteDoc
-        setParticipantes((prev) => prev.filter((p) => p.id !== id));
+
+
+    const fetchUserProfile = async (userId) => {
+        try {
+            const response = await databases.listDocuments(DATABASE_ID, USERS_COLLECTION_ID, [
+                Query.equal("userId", userId),
+            ]);
+            if (response.documents.length > 0) {
+                setUserProfile(response.documents[0]);
+            }
+        } catch (error) {
+            console.log("Erro ao buscar perfil do usuário:", error.message);
+        }
     };
 
-    const loadUserAndParticipantes = async () => {
+    const loadUser = async () => {
         try {
             const storedUser = await AsyncStorage.getItem("user");
             if (storedUser) {
-                setUser(JSON.parse(storedUser));
+                const parsedUser = JSON.parse(storedUser);
+                setUser(parsedUser);
+                await fetchUserProfile(parsedUser.$id);
             }
-
-            const querySnapshot = await getDocs(collection(db, "participantes"));
-            const participantesList = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            setParticipantes(participantesList);
-            await AsyncStorage.setItem("participantes", JSON.stringify(participantesList));
         } catch (error) {
-            console.log("Erro ao carregar dados:", error.message);
+            console.log("Erro ao carregar usuário:", error.message);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        loadUserAndParticipantes();
+        loadUser();
     }, []);
 
     return (
         <AppContext.Provider
             value={{
                 user,
+                userProfile,
                 loading,
-                participantes,
                 login,
                 logout,
-                addParticipante,
-                removeParticipante,
+                signUp,
             }}
         >
             {children}
