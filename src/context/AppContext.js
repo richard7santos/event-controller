@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext } from "react";
+import React, { useState, useEffect, createContext, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ID, Permission, Query, Role } from "appwrite";
 import { account, databases } from "../services/appWriteConfig";
@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const login = async ({ email, password }) => {
         try {
@@ -104,7 +105,9 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-
+    useMemo(() => {
+        if (userProfile?.role === "admin") setIsAdmin(true);
+    }, [userProfile]);
 
     const fetchUserProfile = async (userId) => {
         try {
@@ -147,6 +150,7 @@ export const AppProvider = ({ children }) => {
                 login,
                 logout,
                 signUp,
+                isAdmin
             }}
         >
             {children}

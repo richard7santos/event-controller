@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import UserProfile from '../screens/UserProfile';
 import { EventList } from '../screens/EventListScreen';
 import UserEventsList from '../screens/UserEventList';
+import { AppContext } from '../context/AppContext';
 
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
+    const { isAdmin } = useContext(AppContext)
+
     return (
         <Tab.Navigator
             initialRouteName="Eventos"
@@ -38,7 +41,9 @@ const TabNavigator = () => {
             })}
         >
             <Tab.Screen name="Eventos" component={EventList} />
-            <Tab.Screen name="Meus Eventos" component={UserEventsList} />
+            {!isAdmin &&
+                <Tab.Screen name="Meus Eventos" component={UserEventsList} />
+            }
             <Tab.Screen name="Perfil" component={UserProfile} />
         </Tab.Navigator>
     );
