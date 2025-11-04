@@ -12,7 +12,9 @@ export const AppProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(true);
+
+
 
     const login = async ({ email, password }) => {
         try {
@@ -85,7 +87,7 @@ export const AppProvider = ({ children }) => {
                 ]
             );
 
-            // Atualiza estado local
+            
             setUser(newUser);
             setUserProfile(doc);
             await AsyncStorage.setItem("user", JSON.stringify(newUser));
@@ -106,7 +108,7 @@ export const AppProvider = ({ children }) => {
     };
 
     useMemo(() => {
-        if (userProfile?.role === "admin") setIsAdmin(true);
+        if (userProfile?.role === "admin") setIsAdmin(false);
     }, [userProfile]);
 
     const fetchUserProfile = async (userId) => {

@@ -7,11 +7,14 @@ import {
     Alert,
     Button,
     Image,
+    TouchableOpacity,
 } from "react-native";
 import { databases } from "../../services/appWriteConfig";
 import { styles } from "./EventDetail.styles";
 import { AppContext } from "../../context/AppContext";
 import ModalConfirmation from "../../components/ModalConfirmation";
+import UserProfile from "../UserProfile";
+import { useNavigation } from "@react-navigation/native";
 
 const DATABASE_ID = "68fe300d00286f2ad20a";
 const EVENTOS_COLLECTION_ID = "eventos";
@@ -25,10 +28,11 @@ const EventDetail = ({ route }) => {
     const [actionType, setActionType] = useState(null);
 
     const eventId = route.params.evento.id;
-
+    const { isAdmin } = useContext(AppContext);
     useEffect(() => {
         fetchEvent();
     }, []);
+const navigation = useNavigation();
 
     const fetchEvent = async () => {
         try {
@@ -139,7 +143,10 @@ const EventDetail = ({ route }) => {
                     resizeMode="cover"
                 />
             )}
+         
 
+    
+           {!isAdmin && (
             <View style={{ marginTop: 20 }}>
                 {isParticipant ? (
                     <Button
@@ -154,7 +161,24 @@ const EventDetail = ({ route }) => {
                         disabled={vagasDisponiveis <= 0}
                     />
                 )}
-            </View>
+            </View>  )}
+{isAdmin && (
+    <TouchableOpacity
+      style={{
+        backgroundColor: '#007BFF',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 20,
+      }}
+      onPress={() => navigation.navigate('EventAdmin', { evento: event })}
+    >
+      <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+        Administrar
+      </Text>
+    </TouchableOpacity>
+    )}
 
             <ModalConfirmation
                 visible={modalVisible}
