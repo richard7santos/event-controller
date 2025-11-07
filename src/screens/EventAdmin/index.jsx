@@ -8,7 +8,7 @@ const DATABASE_ID = "68fe300d00286f2ad20a";
 const EVENTOS_COLLECTION_ID = "eventos";
 
 const EventAdmin = ({ route }) => {
-  const { evento } = route.params; 
+  const { evento } = route.params;
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,10 +21,10 @@ const EventAdmin = ({ route }) => {
       const response = await databases.getDocument(
         DATABASE_ID,
         EVENTOS_COLLECTION_ID,
-        evento.$id 
+        evento.$id
       );
 
-      
+
       const participantesFormatados = (response.participantes || []).map((p) => ({
         id: p,
         status: "ausente",
