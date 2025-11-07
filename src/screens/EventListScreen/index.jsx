@@ -23,9 +23,11 @@ export const EventList = () => {
         const eventosFormatados = documents.map((doc) => ({
           id: doc.$id,
           nome: doc.nome,
-          dataHora: doc.dataHora,
+          data: doc.data,
           local: doc.local,
+          horaInicio: doc.horaInicio,
           endereco: doc.endereco,
+          horaFim: doc.horaFim,
           lotacaoMaxima: doc.lotacaoMaxima,
           informacoesGerais: doc.informacoesGerais,
           imagem: doc.imagem,

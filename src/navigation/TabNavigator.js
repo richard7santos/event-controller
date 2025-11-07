@@ -50,13 +50,11 @@ const TabNavigator = () => {
         )}
         <Tab.Screen name="Perfil" component={UserProfile} />
       </Tab.Navigator>
-
-      {}
       {isAdmin && (
         <View
           style={{
             position: 'absolute',
-            bottom: 80, 
+            bottom: 80,
             alignSelf: 'center',
           }}
         >
@@ -80,7 +78,7 @@ const TabNavigator = () => {
                 fontWeight: 'bold',
               }}
             >
-               Novo Evento
+              Novo Evento
             </Text>
           </TouchableOpacity>
         </View>

@@ -9,29 +9,54 @@ const useSeedEvents = () => {
     useEffect(() => {
         const seedEvents = async () => {
             try {
-                const snapshot = await databases.listDocuments(DATABASE_ID, EVENTOS_COLLECTION_ID);
+                const snapshot = await databases.listDocuments(
+                    DATABASE_ID,
+                    EVENTOS_COLLECTION_ID
+                );
 
                 if (snapshot.documents.length === 0) {
+                    const defaultImage =
+                        "https://appwrite.cintespbr.org/v1/storage/buckets/eventos/files/68fed96b00008a476421/view?project=68f6d14f003a3e2ceea0&mode=admin";
+
                     const defaultEvents = [
                         {
                             nome: "Encontro de Tecnologia",
-                            dataHora: "2025-06-10T19:00:00",
                             local: "Auditório Principal",
                             endereco: "Rua das Inovações, 123 - Centro",
                             lotacaoMaxima: 100,
-                            informacoesGerais: "Palestras sobre as tendências da tecnologia para os próximos anos.",
-                            imagem: "https://source.unsplash.com/random/800x600?technology",
-                            participantes: [], // array vazio, pronto para receber user.$id
+                            informacoesGerais:
+                                "Palestras sobre as tendências da tecnologia para os próximos anos.",
+                            imagem: defaultImage,
+                            participantes: [],
+                            data: "2025-06-10",
+                            horaInicio: "19:00",
+                            horaFim: "21:00",
                         },
                         {
                             nome: "Oficina de Design",
-                            dataHora: "2025-06-15T14:30:00",
                             local: "Sala 202 - Bloco B",
                             endereco: "Av. Criativa, 456 - Bairro Novo",
                             lotacaoMaxima: 40,
-                            informacoesGerais: "Workshop prático sobre design de interfaces e usabilidade.",
-                            imagem: "https://source.unsplash.com/random/800x600?design",
+                            informacoesGerais:
+                                "Workshop prático sobre design de interfaces e usabilidade.",
+                            imagem: defaultImage,
                             participantes: [],
+                            data: "2025-06-15",
+                            horaInicio: "14:30",
+                            horaFim: "17:30",
+                        },
+                        {
+                            nome: "Hackathon de Inovação",
+                            local: "Laboratório de Computação",
+                            endereco: "Rua dos Desenvolvedores, 789 - Campus Tech",
+                            lotacaoMaxima: 80,
+                            informacoesGerais:
+                                "Maratona de programação com foco em soluções para problemas reais.",
+                            imagem: defaultImage,
+                            participantes: [],
+                            data: "2025-07-05",
+                            horaInicio: "08:00",
+                            horaFim: "20:00",
                         },
                     ];
 

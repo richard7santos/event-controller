@@ -87,7 +87,7 @@ export const AppProvider = ({ children }) => {
                 ]
             );
 
-            
+
             setUser(newUser);
             setUserProfile(doc);
             await AsyncStorage.setItem("user", JSON.stringify(newUser));
@@ -108,7 +108,7 @@ export const AppProvider = ({ children }) => {
     };
 
     useMemo(() => {
-        if (userProfile?.role === "admin") setIsAdmin(false);
+        if (userProfile?.role === "admin") setIsAdmin(true);
     }, [userProfile]);
 
     const fetchUserProfile = async (userId) => {

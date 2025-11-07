@@ -13,14 +13,14 @@ import { databases } from "../../services/appWriteConfig";
 import { styles } from "./EventDetail.styles";
 import { AppContext } from "../../context/AppContext";
 import ModalConfirmation from "../../components/ModalConfirmation";
-import UserProfile from "../UserProfile";
 import { useNavigation } from "@react-navigation/native";
 
 const DATABASE_ID = "68fe300d00286f2ad20a";
 const EVENTOS_COLLECTION_ID = "eventos";
 
 const EventDetail = ({ route }) => {
-    const { user } = useContext(AppContext);
+    const navigation = useNavigation();
+    const { user, isAdmin } = useContext(AppContext);
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isParticipant, setIsParticipant] = useState(false);
@@ -28,15 +28,18 @@ const EventDetail = ({ route }) => {
     const [actionType, setActionType] = useState(null);
 
     const eventId = route.params.evento.id;
-    const { isAdmin } = useContext(AppContext);
+
     useEffect(() => {
         fetchEvent();
     }, []);
-const navigation = useNavigation();
 
     const fetchEvent = async () => {
         try {
-            const response = await databases.getDocument(DATABASE_ID, EVENTOS_COLLECTION_ID, eventId);
+            const response = await databases.getDocument(
+                DATABASE_ID,
+                EVENTOS_COLLECTION_ID,
+                eventId
+            );
             setEvent(response);
 
             const jaInscrito = response.participantes?.includes(user.$id);
@@ -67,7 +70,9 @@ const navigation = useNavigation();
 
     const handleCancelarInscricao = async () => {
         try {
-            const participantesAtualizados = event.participantes.filter((id) => id !== user.$id);
+            const participantesAtualizados = event.participantes.filter(
+                (id) => id !== user.$id
+            );
 
             await databases.updateDocument(DATABASE_ID, EVENTOS_COLLECTION_ID, eventId, {
                 participantes: participantesAtualizados,
@@ -96,6 +101,16 @@ const navigation = useNavigation();
         setModalVisible(false);
     };
 
+    const formatDate = (dateStr) => {
+        if (!dateStr) return "Não informada";
+        try {
+            const [year, month, day] = dateStr.split("-");
+            return `${day}/${month}/${year}`;
+        } catch {
+            return "Não informada";
+        }
+    };
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -112,20 +127,30 @@ const navigation = useNavigation();
         );
     }
 
-    const vagasDisponiveis = event.lotacaoMaxima - (event.participantes?.length || 0);
+    const vagasDisponiveis =
+        event.lotacaoMaxima - (event.participantes?.length || 0);
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>{event.nome}</Text>
 
-            <Text style={styles.label}>Data e Horário:</Text>
-            <Text style={styles.text}>{new Date(event.dataHora).toLocaleString("pt-BR")}</Text>
+            <Text style={styles.label}>Data:</Text>
+            <Text style={styles.text}>{formatDate(event.data)}</Text>
+
+            <Text style={styles.label}>Horário:</Text>
+            <Text style={styles.text}>
+                {event.horaInicio && event.horaFim
+                    ? `${event.horaInicio} às ${event.horaFim}`
+                    : event.horaInicio
+                        ? `${event.horaInicio}`
+                        : "Não informado"}
+            </Text>
 
             <Text style={styles.label}>Local:</Text>
-            <Text style={styles.text}>{event.local}</Text>
+            <Text style={styles.text}>{event.local || "Não informado"}</Text>
 
             <Text style={styles.label}>Endereço:</Text>
-            <Text style={styles.text}>{event.endereco}</Text>
+            <Text style={styles.text}>{event.endereco || "Não informado"}</Text>
 
             <Text style={styles.label}>Lotação Máxima:</Text>
             <Text style={styles.text}>{event.lotacaoMaxima}</Text>
@@ -134,52 +159,64 @@ const navigation = useNavigation();
             <Text style={styles.text}>{vagasDisponiveis}</Text>
 
             <Text style={styles.label}>Informações Gerais:</Text>
-            <Text style={styles.text}>{event.informacoesGerais}</Text>
+            <Text style={styles.text}>
+                {event.informacoesGerais || "Não informado"}
+            </Text>
 
             {event.imagem && (
                 <Image
                     source={{ uri: event.imagem }}
-                    style={{ width: "100%", height: 200, borderRadius: 8, marginTop: 16 }}
+                    style={{
+                        width: "100%",
+                        height: 200,
+                        borderRadius: 8,
+                        marginTop: 16,
+                    }}
                     resizeMode="cover"
                 />
             )}
-         
 
-    
-           {!isAdmin && (
-            <View style={{ marginTop: 20 }}>
-                {isParticipant ? (
-                    <Button
-                        title="Cancelar Inscrição"
-                        color="#cc0000"
-                        onPress={() => handleOpenModal("cancelar")}
-                    />
-                ) : (
-                    <Button
-                        title="Inscrever-se"
-                        onPress={() => handleOpenModal("inscrever")}
-                        disabled={vagasDisponiveis <= 0}
-                    />
-                )}
-            </View>  )}
-{isAdmin && (
-    <TouchableOpacity
-      style={{
-        backgroundColor: '#007BFF',
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginTop: 20,
-      }}
-      onPress={() => navigation.navigate('EventAdmin', { evento: event })}
-    >
-      <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
-        Administrar
-      </Text>
-    </TouchableOpacity>
-    )}
+            {/* Ações de usuário */}
+            {!isAdmin && (
+                <View style={{ marginTop: 20 }}>
+                    {isParticipant ? (
+                        <Button
+                            title="Cancelar Inscrição"
+                            color="#cc0000"
+                            onPress={() => handleOpenModal("cancelar")}
+                        />
+                    ) : (
+                        <Button
+                            title="Inscrever-se"
+                            onPress={() => handleOpenModal("inscrever")}
+                            disabled={vagasDisponiveis <= 0}
+                        />
+                    )}
+                </View>
+            )}
 
+            {/* Botão do administrador */}
+            {isAdmin && (
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: "#007BFF",
+                        paddingVertical: 12,
+                        paddingHorizontal: 24,
+                        borderRadius: 8,
+                        alignItems: "center",
+                        marginTop: 20,
+                    }}
+                    onPress={() => navigation.navigate("EventAdmin", { evento: event })}
+                >
+                    <Text
+                        style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}
+                    >
+                        Administrar
+                    </Text>
+                </TouchableOpacity>
+            )}
+
+            {/* Modal de confirmação */}
             <ModalConfirmation
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
