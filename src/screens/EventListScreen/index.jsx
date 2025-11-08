@@ -1,5 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
-import { FlatList, Text, ActivityIndicator, View } from "react-native";
+import {
+  FlatList,
+  Text,
+  ActivityIndicator,
+  View,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { databases } from "../../services/appWriteConfig";
 import { styles } from "./Eventilist.style";
 import EventItem from "../../components/EventItem";
@@ -11,6 +18,7 @@ const EVENTOS_COLLECTION_ID = "eventos";
 
 export const EventList = () => {
   // useSeedEvents();
+  const navigation = useNavigation();
   const { isAdmin } = useContext(AppContext);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,16 +26,17 @@ export const EventList = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const { documents } = await databases.listDocuments(DATABASE_ID, EVENTOS_COLLECTION_ID);
+        const { documents } = await databases.listDocuments(
+          DATABASE_ID,
+          EVENTOS_COLLECTION_ID
+        );
 
         const eventosFormatados = documents.map((doc) => ({
           id: doc.$id,
           nome: doc.nome,
-          data: doc.data,
+          dataHora: doc.dataHora,
           local: doc.local,
-          horaInicio: doc.horaInicio,
           endereco: doc.endereco,
-          horaFim: doc.horaFim,
           lotacaoMaxima: doc.lotacaoMaxima,
           informacoesGerais: doc.informacoesGerais,
           imagem: doc.imagem,
@@ -58,9 +67,45 @@ export const EventList = () => {
       <FlatList
         data={events}
         keyExtractor={(item) => item.id}
+        
         renderItem={({ item }) => <EventItem evento={item} />}
-        contentContainerStyle={{ paddingBottom: 20 }}
+       
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
+
+      {isAdmin && (
+        <View
+          style={{
+            position: "absolute",
+            bottom: 80,
+            alignSelf: "center",
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#0F62AC",
+              borderRadius: 5,
+              paddingVertical: 10,
+              paddingHorizontal: 60,
+              elevation: 5,
+              shadowColor: "#000",
+              shadowOpacity: 0.2,
+              shadowRadius: 5,
+            }}
+            onPress={() => navigation.navigate("CriarEvento")}
+          >
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 16,
+                fontWeight: "bold",
+              }}
+            >
+              Novo Evento
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

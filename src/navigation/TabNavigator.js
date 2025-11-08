@@ -45,45 +45,14 @@ const TabNavigator = () => {
         })}
       >
         <Tab.Screen name="Eventos" component={EventList} />
-        {!isAdmin && (
+        {!isAdmin &&(
           <Tab.Screen name="Meus Eventos" component={UserEventsList} />
         )}
         <Tab.Screen name="Perfil" component={UserProfile} />
       </Tab.Navigator>
-      {isAdmin && (
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 80,
-            alignSelf: 'center',
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#0F62AC',
-              borderRadius: 5,
-              paddingVertical: 5,
-              paddingHorizontal: 70,
-              elevation: 5,
-              shadowColor: '#000',
-              shadowOpacity: 0.2,
-              shadowRadius: 5,
-            }}
-            onPress={() => navigation.navigate('CriarEvento')}
-          >
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 16,
-                fontWeight: 'bold',
-              }}
-            >
-              Novo Evento
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </>
+   
+        </>
+      
   );
 };
 
