@@ -101,16 +101,6 @@ const EventDetail = ({ route }) => {
         setModalVisible(false);
     };
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return "Não informada";
-        try {
-            const [year, month, day] = dateStr.split("-");
-            return `${day}/${month}/${year}`;
-        } catch {
-            return "Não informada";
-        }
-    };
-
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -135,7 +125,7 @@ const EventDetail = ({ route }) => {
             <Text style={styles.title}>{event.nome}</Text>
 
             <Text style={styles.label}>Data:</Text>
-            <Text style={styles.text}>{formatDate(event.data)}</Text>
+            <Text style={styles.text}>{event.data}</Text>
 
             <Text style={styles.label}>Horário:</Text>
             <Text style={styles.text}>
