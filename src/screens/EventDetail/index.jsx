@@ -20,7 +20,7 @@ const EVENTOS_COLLECTION_ID = "eventos";
 
 const EventDetail = ({ route }) => {
     const navigation = useNavigation();
-    const { user, isAdmin } = useContext(AppContext);
+    const { user, isAdmin, userProfile } = useContext(AppContext);
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isParticipant, setIsParticipant] = useState(false);
@@ -32,7 +32,6 @@ const EventDetail = ({ route }) => {
     useEffect(() => {
         fetchEvent();
     }, []);
-
     const fetchEvent = async () => {
         try {
             const response = await databases.getDocument(
@@ -42,7 +41,9 @@ const EventDetail = ({ route }) => {
             );
             setEvent(response);
 
-            const jaInscrito = response.participantes?.includes(user.$id);
+            const jaInscrito = response.participantes?.some(
+                (p) => p.id === user.$id
+            );
             setIsParticipant(jaInscrito);
         } catch (error) {
             console.error("Erro ao buscar evento:", error.message);
@@ -53,7 +54,12 @@ const EventDetail = ({ route }) => {
 
     const handleInscricao = async () => {
         try {
-            const participantesAtualizados = [...(event.participantes || []), user.$id];
+            const novoParticipante = { id: user.$id, nome: userProfile.name || "Usuário" };
+
+            const participantesAtualizados = [
+                ...(event.participantes || []),
+                novoParticipante,
+            ];
 
             await databases.updateDocument(DATABASE_ID, EVENTOS_COLLECTION_ID, eventId, {
                 participantes: participantesAtualizados,
@@ -70,8 +76,8 @@ const EventDetail = ({ route }) => {
 
     const handleCancelarInscricao = async () => {
         try {
-            const participantesAtualizados = event.participantes.filter(
-                (id) => id !== user.$id
+            const participantesAtualizados = (event.participantes || []).filter(
+                (p) => p.id !== user.$id
             );
 
             await databases.updateDocument(DATABASE_ID, EVENTOS_COLLECTION_ID, eventId, {
@@ -166,7 +172,6 @@ const EventDetail = ({ route }) => {
                 />
             )}
 
-            {/* Ações de usuário */}
             {!isAdmin && (
                 <View style={{ marginTop: 20 }}>
                     {isParticipant ? (
@@ -185,7 +190,6 @@ const EventDetail = ({ route }) => {
                 </View>
             )}
 
-            {/* Botão do administrador */}
             {isAdmin && (
                 <TouchableOpacity
                     style={{
@@ -206,7 +210,6 @@ const EventDetail = ({ route }) => {
                 </TouchableOpacity>
             )}
 
-            {/* Modal de confirmação */}
             <ModalConfirmation
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
