@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import {
   FlatList,
   Text,
@@ -6,72 +6,78 @@ import {
   View,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { databases } from "../../services/appWriteConfig";
 import { styles } from "./Eventilist.style";
 import EventItem from "../../components/EventItem";
-import useSeedEvents from "../../services/useSeedsEvent";
 import { AppContext } from "../../context/AppContext";
 
 const DATABASE_ID = "68fe300d00286f2ad20a";
 const EVENTOS_COLLECTION_ID = "eventos";
 
 export const EventList = () => {
-  // useSeedEvents();
   const navigation = useNavigation();
   const { isAdmin } = useContext(AppContext);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const { documents } = await databases.listDocuments(
-          DATABASE_ID,
-          EVENTOS_COLLECTION_ID
-        );
+  // Função isolada para buscar os eventos
+  const fetchEvents = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        const eventosFormatados = documents.map((doc) => ({
-          id: doc.$id,
-          nome: doc.nome,
-          dataHora: doc.dataHora,
-          local: doc.local,
-          endereco: doc.endereco,
-          lotacaoMaxima: doc.lotacaoMaxima,
-          informacoesGerais: doc.informacoesGerais,
-          imagem: doc.imagem,
-          participantes: doc.participantes || [],
-        }));
+      const { documents } = await databases.listDocuments(
+        DATABASE_ID,
+        EVENTOS_COLLECTION_ID
+      );
 
-        setEvents(eventosFormatados);
-      } catch (error) {
-        console.error("Erro ao buscar eventos:", error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const eventosFormatados = documents.map((doc) => ({
+        id: doc.$id,
+        nome: doc.nome,
+        data: doc.data,
+        horaInicio: doc.horaInicio,
+        horaFim: doc.horaFim,
+        local: doc.local,
+        endereco: doc.endereco,
+        lotacaoMaxima: doc.lotacaoMaxima,
+        informacoesGerais: doc.informacoesGerais,
+        imagem: doc.imagem,
+        participantes: doc.participantes || [],
+      }));
 
-    fetchEvents();
+      setEvents(eventosFormatados);
+    } catch (error) {
+      console.error("Erro ao buscar eventos:", error.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  if (loading) {
-    return <ActivityIndicator style={{ marginTop: 20 }} size="large" color="#000" />;
-  }
+  // Executa toda vez que a tela ganha foco
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvents();
+    }, [fetchEvents])
+  );
 
-  if (events.length === 0) {
-    return <Text style={styles.empty}>Nenhum evento encontrado.</Text>;
+  if (loading) {
+    return (
+      <ActivityIndicator style={{ marginTop: 20 }} size="large" color="#000" />
+    );
   }
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={events}
-        keyExtractor={(item) => item.id}
-        
-        renderItem={({ item }) => <EventItem evento={item} />}
-       
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
+      {events.length === 0 ? (
+        <Text style={styles.empty}>Nenhum evento encontrado.</Text>
+      ) : (
+        <FlatList
+          data={events}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <EventItem evento={item} />}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        />
+      )}
 
       {isAdmin && (
         <View

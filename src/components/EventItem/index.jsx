@@ -27,21 +27,12 @@ const EventItem = ({ evento }) => {
     const handlePress = () => {
         navigation.navigate('EventDetail', { evento })
     };
-    const formatDate = (dateStr) => {
-        if (!dateStr) return "Não informada";
-        try {
-            const [year, month, day] = dateStr.split("-");
-            return `${day}/${month}/${year}`;
-        } catch {
-            return "Não informada";
-        }
-    };
     return (
         <Pressable onPress={handlePress} style={styles.container}>
             <Card>
                 <Title>{evento.nome}</Title>
                 <Info>Local: {evento.local || "Não informado"}</Info>
-                <Info>Data: {formatDate(evento.data)}</Info>
+                <Info>Data: {evento.data}</Info>
                 <Info>
                     Horário:{" "}
                     {evento.horaInicio && evento.horaFim

@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { databases } from "../../services/appWriteConfig";
 import { styles } from "./EventAdminStyle";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const DATABASE_ID = "68fe300d00286f2ad20a";
 const EVENTOS_COLLECTION_ID = "eventos";
+const USERS_COLLECTION_ID = "68fe41620009211f1022";
 
 const EventAdmin = ({ route }) => {
   const { evento } = route.params;
@@ -18,17 +26,38 @@ const EventAdmin = ({ route }) => {
 
   const fetchParticipants = async () => {
     try {
+      // Busca o evento e pega os IDs dos participantes
       const response = await databases.getDocument(
         DATABASE_ID,
         EVENTOS_COLLECTION_ID,
         evento.$id
       );
 
+      const participantIds = response.participantes || [];
 
-      const participantesFormatados = (response.participantes || []).map((p) => ({
-        id: p,
-        status: "ausente",
-      }));
+      if (participantIds.length === 0) {
+        setParticipants([]);
+        return;
+      }
+
+      // Busca os dados dos usuários no Appwrite (userProfile)
+      const userPromises = participantIds.map((id) =>
+        databases.getDocument(DATABASE_ID, USERS_COLLECTION_ID, id).catch((err) => {
+          console.warn(`Erro ao buscar usuário ${id}:`, err.message);
+          return null; // evita travar caso algum id não exista mais
+        })
+      );
+
+      const userDocuments = await Promise.all(userPromises);
+
+      // Filtra nulos e formata
+      const participantesFormatados = userDocuments
+        .filter((u) => u !== null)
+        .map((user) => ({
+          id: user.$id,
+          nome: user.nome || "Usuário sem nome",
+          status: "ausente",
+        }));
 
       setParticipants(participantesFormatados);
     } catch (error) {
@@ -82,7 +111,7 @@ const EventAdmin = ({ route }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.participantCard}>
-      <Text style={styles.participantName}>{item.id}</Text>
+      <Text style={styles.participantName}>{item.nome}</Text>
       <Text style={styles.participantStatus}>Status: {item.status}</Text>
       <View style={styles.actions}>
         <TouchableOpacity onPress={() => toggleStatus(item.id)} style={styles.actionButton}>
