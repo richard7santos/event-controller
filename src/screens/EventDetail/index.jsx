@@ -54,7 +54,10 @@ const EventDetail = ({ route }) => {
 
     const handleInscricao = async () => {
         try {
-            const novoParticipante = { id: user.$id, nome: userProfile.name || "Usuário" };
+            const novoParticipante = JSON.stringify({
+                id: user.$id,
+                nome: userProfile.name || "Usuário",
+            });
 
             const participantesAtualizados = [
                 ...(event.participantes || []),
