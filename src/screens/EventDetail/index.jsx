@@ -39,18 +39,33 @@ const EventDetail = ({ route }) => {
                 EVENTOS_COLLECTION_ID,
                 eventId
             );
-            setEvent(response);
 
-            const jaInscrito = response.participantes?.some(
-                (p) => p.id === user.$id
-            );
+            // converte cada string JSON em objeto participante
+            const participantes = (response.participantes || []).map((p) => {
+                try {
+                    return JSON.parse(p);
+                } catch {
+                    console.warn("Erro ao converter participante:", p);
+                    return null;
+                }
+            }).filter(Boolean);
+
+            setEvent({
+                ...response,
+                participantes,
+            });
+
+            // verifica se o usuário já está inscrito
+            const jaInscrito = participantes.some((p) => p.id === user.$id);
             setIsParticipant(jaInscrito);
+
         } catch (error) {
             console.error("Erro ao buscar evento:", error.message);
         } finally {
             setLoading(false);
         }
     };
+
 
     const handleInscricao = async () => {
         try {
